@@ -1,4 +1,4 @@
-
+const Task = require('../models/task')
 
 const getAllTasks = (req,res)=>{
     res.send('all items from the file')
