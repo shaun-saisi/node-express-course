@@ -2,15 +2,15 @@ const Product = require('../models/product')
 
 const getAllProductsStatic = async (req, res) =>{
   
-    const products = await Product.find({})
-    .sort('name')
+    const products = await Product.find({price:{$gt:30}})
+    .sort('price')
     .select('name price')
     .limit(7)
     res.status(200).json({products, nbHits:products.length})
 }
 
 const getAllProducts = async (req, res) =>{
-    const {featured, company,name, sort,fields} = req.query
+    const {featured, company,name, sort,fields, numericFilters} = req.query
     const queryObject = {} 
     if (featured){
         queryObject.featured = featured === 'true'? true:false
@@ -21,7 +21,20 @@ const getAllProducts = async (req, res) =>{
     if(name){
         queryObject.name = name
     }
-    //console.log(queryObject);
+    if (numericFilters){
+        const operatorMap = {
+            '>':'$gt',
+            '>=':'$gte',
+            '<':'$lt',
+            '<=':'$lte',
+            '=': '$eq'
+        }
+        const regEx = /\b(<|>|>=|=|<=|\b)/g
+        let filters = numericFilters.replace(regEx,(match)=>`-${operatorMap[match]}-`)
+        console.log(filters);
+        
+    }
+    console.log(queryObject);
     
     let result =  Product.find(queryObject)
 
